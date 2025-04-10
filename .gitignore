@@ -1,0 +1,41 @@
+# Binaries for programs and plugins
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, build cache
+*.test
+*.out
+pkg/
+
+# Dependency directories (remove the comment below if you vendor dependencies)
+vendor/
+
+# Go modules
+go.sum
+# (jika ingin commit go.sum, bisa di-comment)
+
+# IDE/editor files
+.vscode/
+*.code-workspace
+
+# GoLand / JetBrains
+.idea/
+*.iml
+out/
+
+# Environment variables
+.env
+.env.*.local
+
+# Docker
+docker-compose.override.yml
+Dockerfile
+
+# Logs
+*.log
+
+# Coverage
+coverage.out
