@@ -14,8 +14,6 @@ pkg/
 vendor/
 
 # Go modules
-go.sum
-# (jika ingin commit go.sum, bisa di-comment)
 
 # IDE/editor files
 .vscode/
