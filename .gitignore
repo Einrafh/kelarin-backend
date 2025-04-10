@@ -1,39 +1,20 @@
-# Binaries for programs and plugins
+# Go build outputs
 bin/
 *.exe
-*.dll
-*.so
-*.dylib
-
-# Test binary, build cache
 *.test
-*.out
-pkg/
 
-# Dependency directories (remove the comment below if you vendor dependencies)
+# Vendored dependencies
 vendor/
 
-# Go modules
+# Environment files
+.env
+
+# Docker overrides
+docker-compose.override.yml
 
 # IDE/editor files
 .vscode/
-*.code-workspace
-
-# GoLand / JetBrains
 .idea/
-*.iml
-out/
 
-# Environment variables
-.env
-.env.*.local
-
-# Docker
-docker-compose.override.yml
-Dockerfile
-
-# Logs
-*.log
-
-# Coverage
-coverage.out
+# macOS system files
+.DS_Store
