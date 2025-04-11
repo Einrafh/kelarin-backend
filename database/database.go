@@ -39,9 +39,15 @@ func ConnectDatabase() {
 		&models.User{},
 		&models.Workspace{},
 		&models.WorkspaceUser{},
-		// Add new models here.
+		&models.BoardList{},
+		&models.Card{},
+		&models.Subtask{},
+		&models.CardAssignee{},
+		&models.CardAttachment{},
+		&models.CardLabel{},
+		&models.CardComment{},
 	); err != nil {
-		log.Fatalf("Failed to auto‑migrate models: %v", err)
+		log.Fatalf("Failed to auto-migrate models: %v", err)
 	}
 
 	ensureCascadeFK(db)
