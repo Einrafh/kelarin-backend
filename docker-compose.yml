@@ -1,0 +1,65 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres
+    container_name: kelarin_db
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: kelarin_admin
+      POSTGRES_PASSWORD: kelarin_password
+      POSTGRES_DB: kelarin
+    ports:
+      - "1010:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - kelarin_network
+
+  adminer:
+    image: adminer
+    container_name: kelarin_adminer
+    restart: always
+    ports:
+      - "1020:8080"
+    networks:
+      - kelarin_network
+
+  backend:
+    build: .
+    image: kelarin-backend
+    container_name: kelarin_backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: kelarin_admin
+      DB_PASSWORD: kelarin_password
+      DB_NAME: kelarin
+      DB_PORT: 5432
+    ports:
+      - "1030:8080"
+    networks:
+      - kelarin_network
+
+  nginx:
+    image: nginx:alpine
+    container_name: kelarin_nginx
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - kelarin_network
+
+volumes:
+  pgdata:
+
+networks:
+  kelarin_network:
+    driver: bridge
