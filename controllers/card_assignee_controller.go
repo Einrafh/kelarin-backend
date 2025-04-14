@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"kelarin-backend/utils"
+	"log"
 	"strconv"
 
 	"kelarin-backend/dto"
@@ -38,6 +40,10 @@ func CreateAssignee(c *fiber.Ctx) error {
 	var populatedAssignee models.CardAssignee
 	if err := repositories.GetCardAssignee(uint(cardID), uint(userID), &populatedAssignee); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to retrieve populated assignee"})
+	}
+
+	if err := utils.IncrementStreak(uint(userID)); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	response := dto.NewCardAssigneeResponse(&populatedAssignee)
@@ -97,6 +103,10 @@ func DeleteAssignee(c *fiber.Ctx) error {
 
 	if err := repositories.DeleteCardAssignee(uint(cardID), uint(userID)); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to remove assignee"})
+	}
+
+	if err := utils.IncrementStreak(uint(userID)); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Assignee removed successfully"})

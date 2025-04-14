@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"kelarin-backend/utils"
 	"log"
 	"strconv"
 	"time"
@@ -31,6 +32,15 @@ func CreateCardLabel(c *fiber.Ctx) error {
 	if err := repositories.CreateCardLabel(&label); err != nil {
 		log.Println("Error creating card label:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create card label"})
+	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"label": label})
@@ -90,6 +100,16 @@ func UpdateCardLabel(c *fiber.Ctx) error {
 		log.Println("Error updating card label:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update label"})
 	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"label": label})
 }
 
@@ -102,5 +122,15 @@ func DeleteCardLabel(c *fiber.Ctx) error {
 	if err := repositories.DeleteCardLabel(uint(labelID)); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete label"})
 	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Label deleted successfully"})
 }

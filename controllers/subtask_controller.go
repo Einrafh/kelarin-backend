@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"kelarin-backend/utils"
 	"log"
 	"strconv"
 
@@ -30,6 +31,15 @@ func CreateSubtask(c *fiber.Ctx) error {
 	if err := repositories.CreateSubtask(&subtask); err != nil {
 		log.Println("Error creating subtask:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create subtask"})
+	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"subtask": subtask})
@@ -89,6 +99,15 @@ func UpdateSubtask(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update subtask"})
 	}
 
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"subtask": subtask})
 }
 
@@ -101,6 +120,15 @@ func DeleteSubtask(c *fiber.Ctx) error {
 
 	if err := repositories.DeleteSubtask(uint(subtaskID)); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete subtask"})
+	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Subtask deleted successfully"})

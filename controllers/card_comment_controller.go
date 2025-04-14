@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"kelarin-backend/utils"
 	"log"
 	"strconv"
 	"time"
@@ -45,6 +46,10 @@ func CreateCardComment(c *fiber.Ctx) error {
 	var populatedComment models.CardComment
 	if err := repositories.GetCardCommentByID(comment.ID, &populatedComment); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to preload comment data"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	response := dto.NewCardCommentResponse(&populatedComment)
@@ -110,6 +115,15 @@ func UpdateCardComment(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update comment"})
 	}
 
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
+	}
+
 	response := dto.NewCardCommentResponse(&comment)
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"comment": response})
 }
@@ -123,5 +137,15 @@ func DeleteCardComment(c *fiber.Ctx) error {
 	if err := repositories.DeleteCardComment(uint(commentID)); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete comment"})
 	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Comment deleted successfully"})
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"kelarin-backend/utils"
 	"log"
 	"os"
 	"path/filepath"
@@ -154,6 +155,10 @@ func AddWorkspace(c *fiber.Ctx) error {
 		First(&newWorkspace, newWorkspace.ID).Error; err != nil {
 		log.Println("Error preloading workspace:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to load workspace data"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	response := dto.NewWorkspaceResponse(&newWorkspace)
@@ -341,6 +346,10 @@ func UpdateWorkspace(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to load updated workspace"})
 	}
 
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
+	}
+
 	response := dto.NewWorkspaceResponse(&ws)
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message":   "Workspace updated successfully",
@@ -399,6 +408,15 @@ func ShareWorkspace(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to add collaborator"})
 	}
 
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
+	}
+
 	// Return success response
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Workspace shared successfully"})
 }
@@ -413,6 +431,15 @@ func DeleteWorkspace(c *fiber.Ctx) error {
 
 	if err := repositories.DeleteWorkspace(workspaceID); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete workspace"})
+	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Workspace deleted successfully"})

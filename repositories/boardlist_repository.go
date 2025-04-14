@@ -20,6 +20,15 @@ func GetBoardListByID(id uint, list *models.BoardList) error {
 	return database.DB.First(list, id).Error
 }
 
+// GetWorkspaceIDByListID retrieves the workspace_id associated with a board list.
+func GetWorkspaceIDByListID(listID uint) (uint, error) {
+	var boardList models.BoardList
+	if err := database.DB.Select("workspace_id").First(&boardList, listID).Error; err != nil {
+		return 0, err
+	}
+	return boardList.WorkspaceID, nil
+}
+
 // UpdateBoardList updates an existing board list.
 func UpdateBoardList(list *models.BoardList) error {
 	return database.DB.Save(list).Error

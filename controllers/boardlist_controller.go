@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"kelarin-backend/utils"
 	"log"
 	"strconv"
 	"time"
@@ -12,11 +13,23 @@ import (
 )
 
 // CreateBoardList creates a new board list within a workspace.
-// It automatically creates the list (e.g., To Do, In Progress, etc.)
 func CreateBoardList(c *fiber.Ctx) error {
 	workspaceID, err := strconv.Atoi(c.Params("workspace_id"))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid workspace ID"})
+	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	role, err := utils.CheckRoleInWorkspace(userID, uint(workspaceID))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to retrieve user role in workspace"})
+	}
+	if !utils.IsEditorAdminOwner(role) {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Insufficient permission to create board list"})
 	}
 
 	title := c.FormValue("title")
@@ -34,6 +47,10 @@ func CreateBoardList(c *fiber.Ctx) error {
 	if err := repositories.CreateBoardList(&list); err != nil {
 		log.Println("Error creating board list:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create board list"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"list": list})
@@ -73,6 +90,15 @@ func UpdateBoardList(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update board list"})
 	}
 
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"list": list})
 }
 
@@ -85,6 +111,15 @@ func DeleteBoardList(c *fiber.Ctx) error {
 
 	if err := repositories.DeleteBoardList(uint(listID)); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete board list"})
+	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Board list deleted successfully"})

@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"kelarin-backend/utils"
 	"log"
 	"strconv"
 	"time"
@@ -32,6 +33,15 @@ func CreateCardAttachment(c *fiber.Ctx) error {
 	if err := repositories.CreateCardAttachment(&attachment); err != nil {
 		log.Println("Error creating card attachment:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create card attachment"})
+	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"attachment": attachment})
@@ -92,6 +102,16 @@ func UpdateCardAttachment(c *fiber.Ctx) error {
 		log.Println("Error updating card attachment:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update attachment"})
 	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"attachment": attachment})
 }
 
@@ -105,5 +125,15 @@ func DeleteCardAttachment(c *fiber.Ctx) error {
 	if err := repositories.DeleteCardAttachment(uint(attachmentID)); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete attachment"})
 	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Attachment deleted successfully"})
 }

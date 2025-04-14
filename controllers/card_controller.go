@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"kelarin-backend/utils"
 	"log"
 	"strconv"
 	"time"
@@ -16,6 +17,24 @@ func CreateCard(c *fiber.Ctx) error {
 	listID, err := strconv.Atoi(c.Params("list_id"))
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid list ID"})
+	}
+
+	workspaceID, err := repositories.GetWorkspaceIDByListID(uint(listID))
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to retrieve workspace from list"})
+	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	role, err := utils.CheckRoleInWorkspace(userID, workspaceID)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Failed to retrieve user role in workspace"})
+	}
+	if !utils.IsEditorAdminOwner(role) {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "Insufficient permission to create card"})
 	}
 
 	title := c.FormValue("title")
@@ -43,6 +62,10 @@ func CreateCard(c *fiber.Ctx) error {
 	if err := repositories.CreateCard(&card); err != nil {
 		log.Println("Error creating card:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create card"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"card": card})
@@ -106,6 +129,15 @@ func UpdateCard(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update card"})
 	}
 
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
+	}
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"card": card})
 }
 
@@ -118,6 +150,15 @@ func DeleteCard(c *fiber.Ctx) error {
 
 	if err := repositories.DeleteCard(uint(cardID)); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete card"})
+	}
+
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	if err := utils.IncrementStreak(userID); err != nil {
+		log.Println("Error incrementing streak:", err)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Card deleted successfully"})
