@@ -1,31 +1,31 @@
 # Kelarin
 
-**Kelarin** is a gamified task management tool designed to boost productivity and motivation. With an innovative Kanban system, streak-based rewards, and customizable workspaces, Kelarin offers an interactive, engaging, and fun way to manage your tasks.
+**Kelarin** adalah alat manajemen tugas dengan sentuhan gamifikasi yang dirancang untuk meningkatkan produktivitas dan motivasi. Dengan sistem Kanban yang inovatif, penghargaan berbasis streak, serta ruang kerja yang dapat disesuaikan, Kelarin menawarkan cara yang interaktif, menyenangkan, dan efektif untuk mengelola tugas-tugas Anda.
 
-## Team
+## Tim
 
 **BCC Nekad**
 
-**Members:**
+**Anggota:**
 - Muhammad Rafly Ash Shiddiqi
 - Nickolas Quinn Budiyono
 - Rheza Agung Luckianto
 
-## Product Explanation
+## Penjelasan Produk
 
-Kelarin is designed to increase productivity and motivation. Its key features include:
+Kelarin dirancang untuk meningkatkan produktivitas dan motivasi. Fitur-fitur utamanya meliputi:
 
-- **Kanban System:** Organize your tasks with a flexible, visual workflow.
-- **Streak-based Rewards:** Earn rewards and track your productivity streak to stay consistent.
-- **Customizable Workspaces:** Personalize your workspace to suit your workflow.
+- **Sistem Kanban:** Mengorganisir tugas-tugas Anda dengan alur kerja visual yang fleksibel.
+- **Penghargaan Berbasis Streak:** Dapatkan reward dan pantau streak produktivitas Anda agar tetap konsisten.
+- **Ruang Kerja yang Dapat Disesuaikan:** Personalisasi ruang kerja Anda agar sesuai dengan alur kerja yang diinginkan.
 
-Kelarin encourages users to remain consistent and productive in completing their tasks.
+Kelarin mendorong pengguna untuk tetap konsisten dan produktif dalam menyelesaikan pekerjaan mereka.
 
 ## Deployment
 
-Access the live application at:  
+Akses aplikasi langsung melalui:
 [https://kelarin.bccdev.id/](https://kelarin.bccdev.id/)
 
-## License
+## Lisensi
 
-This project is licensed under the **BCC Nekad** license.
+Proyek ini dilisensikan di bawah lisensi **BCC Nekad**.
