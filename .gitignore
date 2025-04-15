@@ -7,7 +7,7 @@ bin/
 vendor/
 
 # Environment files
-.env
+#.env
 
 # Docker overrides
 docker-compose.override.yml
